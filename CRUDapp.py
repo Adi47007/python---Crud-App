@@ -1,141 +1,189 @@
 from tkinter import *
 from tkinter import messagebox
 import mysql.connector
+import os
 
+# Function to connect to the database
+def db_connect():
+    try:
+        return mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="newpassword",
+            database="employee",
+            auth_plugin='mysql_native_password'
+        )
+    except mysql.connector.Error as err:
+        messagebox.showerror("Database Error", f"Error: {err}")
+        return None
 
-def get_password():
-    return ''.join([chr(ord(char) - 2) for char in 'pgyrcuuyqtf'])
-
-
-
-
+# Function to insert data into the database
 def insertData():
     id = enterId.get()
     name = enterName.get()
     dept = enterDept.get()
-    
-    if id == "" or name == "" or dept == "":
+
+    if not id.isdigit():
+        messagebox.showwarning("Invalid Input", "Employee ID must be numeric!")
+    elif id == "" or name == "" or dept == "":
         messagebox.showwarning("Cannot Insert", "All fields are required!")
     else:
-        myDB = mysql.connector.connect(host="localhost", user="root", passwd=get_password(), database="employee")
-        myCur = myDB.cursor()
-        sql = "INSERT INTO empDetails (empID, empName, empDept) VALUES (%s, %s, %s)"
-        val = (id, name, dept)
-        myCur.execute(sql, val)
-        myDB.commit()
-        enterId.delete(0, "end")
-        enterName.delete(0, "end")
-        enterDept.delete(0, "end")
-        show()
-        messagebox.showinfo("Insert Status", "Data Inserted Successfully")
-        myDB.close()
+        myDB = db_connect()
+        if myDB:
+            myCur = myDB.cursor()
+            try:
+                sql = "INSERT INTO empDetails (empID, empName, empDept) VALUES (%s, %s, %s)"
+                val = (id, name, dept)
+                myCur.execute(sql, val)
+                myDB.commit()
+                resetFields()
+                show()
+                messagebox.showinfo("Insert Status", "Data Inserted Successfully")
+            except mysql.connector.Error as err:
+                messagebox.showerror("Insert Error", f"Error: {err}")
+            finally:
+                myDB.close()
 
+# Function to update data in the database
 def updateData():
     id = enterId.get()
     name = enterName.get()
     dept = enterDept.get()
-    
-    if id == "" or name == "" or dept == "":
+
+    if not id.isdigit():
+        messagebox.showwarning("Invalid Input", "Employee ID must be numeric!")
+    elif id == "" or name == "" or dept == "":
         messagebox.showwarning("Cannot Update", "All fields are required!")
     else:
-        myDB = mysql.connector.connect(host="localhost", user="root", passwd=get_password(), database="employee")
-        myCur = myDB.cursor()
-        sql = "UPDATE empDetails SET empName = %s, empDept = %s WHERE empID = %s"
-        val = (name, dept, id)
-        myCur.execute(sql, val)
-        myDB.commit()
-        enterId.delete(0, "end")
-        enterName.delete(0, "end")
-        enterDept.delete(0, "end")
-        show()
-        messagebox.showinfo("Update Status", "Data Updated Successfully")
-        myDB.close()
+        myDB = db_connect()
+        if myDB:
+            myCur = myDB.cursor()
+            try:
+                sql = "UPDATE empDetails SET empName = %s, empDept = %s WHERE empID = %s"
+                val = (name, dept, id)
+                myCur.execute(sql, val)
+                myDB.commit()
+                resetFields()
+                show()
+                messagebox.showinfo("Update Status", "Data Updated Successfully")
+            except mysql.connector.Error as err:
+                messagebox.showerror("Update Error", f"Error: {err}")
+            finally:
+                myDB.close()
 
+# Function to fetch data from the database
 def getData():
-    if enterId.get() == "":
+    id = enterId.get()
+    if not id.isdigit():
+        messagebox.showwarning("Invalid Input", "Employee ID must be numeric!")
+    elif id == "":
         messagebox.showwarning("Fetch Status", "Please provide the Emp ID to fetch the data:")
     else:
-        myDB = mysql.connector.connect(host="localhost", user="root", passwd=get_password(), database="employee")
-        myCur = myDB.cursor()
-        sql = "SELECT * FROM empDetails WHERE empID = %s"
-        val = (enterId.get(),)
-        myCur.execute(sql, val)
-        rows = myCur.fetchall()
-        if rows:
-            enterName.delete(0, "end")
-            enterDept.delete(0, "end")
-            for row in rows:
-                enterName.insert(0, row[1])
-                enterDept.insert(0, row[2])
-        else:
-            messagebox.showinfo("Fetch Status", "No data found for the given Emp ID")
-        myDB.close()
+        myDB = db_connect()
+        if myDB:
+            myCur = myDB.cursor()
+            try:
+                sql = "SELECT * FROM empDetails WHERE empID = %s"
+                val = (id,)
+                myCur.execute(sql, val)
+                rows = myCur.fetchall()
+                enterName.delete(0, "end")
+                enterDept.delete(0, "end")
+                if rows:
+                    for row in rows:
+                        enterName.insert(0, row[1])
+                        enterDept.insert(0, row[2])
+                else:
+                    messagebox.showinfo("Fetch Status", "No data found for the given Emp ID")
+            except mysql.connector.Error as err:
+                messagebox.showerror("Fetch Error", f"Error: {err}")
+            finally:
+                myDB.close()
 
+# Function to delete data from the database
 def deleteData():
-    if enterId.get() == "":
+    id = enterId.get()
+    if not id.isdigit():
+        messagebox.showwarning("Invalid Input", "Employee ID must be numeric!")
+    elif id == "":
         messagebox.showwarning("Cannot Delete", "Please provide the Emp ID to delete the data")
     else:
-        myDB = mysql.connector.connect(host="localhost", user="root", passwd=get_password(), database="employee")
-        myCur = myDB.cursor()
-        sql = "DELETE FROM empDetails WHERE empID = %s"
-        val = (enterId.get(),)
-        myCur.execute(sql, val)
-        myDB.commit()
-        enterId.delete(0, "end")
-        enterName.delete(0, "end")
-        enterDept.delete(0, "end")
-        show()
-        messagebox.showinfo("Delete Status", "Data Deleted Successfully")
-        myDB.close()
+        myDB = db_connect()
+        if myDB:
+            myCur = myDB.cursor()
+            try:
+                sql = "DELETE FROM empDetails WHERE empID = %s"
+                val = (id,)
+                myCur.execute(sql, val)
+                myDB.commit()
+                resetFields()
+                show()
+                messagebox.showinfo("Delete Status", "Data Deleted Successfully")
+            except mysql.connector.Error as err:
+                messagebox.showerror("Delete Error", f"Error: {err}")
+            finally:
+                myDB.close()
 
+# Function to display data in the listbox
 def show():
-    myDB = mysql.connector.connect(host="localhost", user="root", passwd=get_password(), database="employee")
-    myCur = myDB.cursor()
-    myCur.execute("SELECT * FROM empDetails")
-    rows = myCur.fetchall()
-    showData.delete(0, showData.size())
-    for row in rows:
-        addData = str(row[0]) + ' ' + row[1] + ' ' + row[2]  # Convert row[0] to string
-        showData.insert(showData.size() + 1, addData)
-    myDB.close()
+    myDB = db_connect()
+    if myDB:
+        myCur = myDB.cursor()
+        try:
+            myCur.execute("SELECT * FROM empDetails")
+            rows = myCur.fetchall()
+            showData.delete(0, END)
+            showData.insert(0, "ID | Name | Dept")
+            for row in rows:
+                addData = f"{row[0]:<10} {row[1]:<20} {row[2]}"
+                showData.insert(END, addData)
+        except mysql.connector.Error as err:
+            messagebox.showerror("Display Error", f"Error: {err}")
+        finally:
+            myDB.close()
 
-
+# Function to reset entry fields
 def resetFields():
     enterId.delete(0, "end")
     enterName.delete(0, "end")
     enterDept.delete(0, "end")
 
+# GUI Setup
 window = Tk()
-window.geometry("600x270")
+window.geometry("700x350")
 window.title("Employee CRUD App")
 
 empId = Label(window, text="Employee ID", font=('Serif', 12))
 empId.place(x=20, y=30)
-empName = Label(window, text="Employee Name", font=('Serif', 12))
-empName.place(x=20, y=60)
-empDept = Label(window, text="Employee Dept", font=("Serif", 12))
-empDept.place(x=20, y=90)
 enterId = Entry(window)
-enterId.place(x=170, y=30)
+enterId.place(x=150, y=30)
+
+empName = Label(window, text="Employee Name", font=('Serif', 12))
+empName.place(x=20, y=80)
 enterName = Entry(window)
-enterName.place(x=170, y=60)
+enterName.place(x=150, y=80)
+
+empDept = Label(window, text="Employee Dept", font=("Serif", 12))
+empDept.place(x=20, y=130)
 enterDept = Entry(window)
-enterDept.place(x=170, y=90)
+enterDept.place(x=150, y=130)
 
 insertBtn = Button(window, text="Insert", font=('Serif', 12), bg="white", command=insertData)
-insertBtn.place(x=20, y=160)
+insertBtn.place(x=20, y=200)
 updateBtn = Button(window, text="Update", font=('Serif', 12), bg="white", command=updateData)
-updateBtn.place(x=80, y=160)
+updateBtn.place(x=100, y=200)
 getBtn = Button(window, text="Fetch", font=('Serif', 12), bg="white", command=getData)
-getBtn.place(x=150, y=160)
+getBtn.place(x=180, y=200)
 deleteBtn = Button(window, text="Delete", font=('Serif', 12), bg="white", command=deleteData)
-deleteBtn.place(x=210, y=160)
+deleteBtn.place(x=260, y=200)
 resetBtn = Button(window, text="Reset", font=('Serif', 12), bg="white", command=resetFields)
-resetBtn.place(x=20, y=210)
+resetBtn.place(x=340, y=200)
 
-showData = Listbox(window)
-showData.place(x=330, y=30)
+showData = Listbox(window, width=70)
+showData.place(x=400, y=30, height=250)
 
 show()
 
 window.mainloop()
+
+
