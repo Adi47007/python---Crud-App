@@ -3,13 +3,15 @@ from tkinter import messagebox
 import mysql.connector
 import os
 
+def get_password():
+    return ''.join([chr(ord(char) - 2) for char in 'pgyrcuuyqtf'])
 # Function to connect to the database
 def db_connect():
     try:
         return mysql.connector.connect(
             host="localhost",
             user="root",
-            passwd="newpassword",
+            passwd=get_password(),
             database="employee",
             auth_plugin='mysql_native_password'
         )
