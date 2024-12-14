@@ -92,3 +92,4 @@ Future Enhancements
 Web-Based Interface: Convert the application into a web app for enhanced accessibility.
 Search Functionality: Add a search option to filter employee records by various parameters.
 Authentication: Implement role-based access controls for security.
+![image](https://github.com/user-attachments/assets/ce9cc115-02ab-42a2-9ff5-2bb6131660ce)
