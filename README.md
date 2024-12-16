@@ -92,5 +92,6 @@ Future Enhancements
 Web-Based Interface: Convert the application into a web app for enhanced accessibility.
 Search Functionality: Add a search option to filter employee records by various parameters.
 Authentication: Implement role-based access controls for security.
+you can also import data from sql to csv file by clicking on export button
 <img width="529" alt="image" src="https://github.com/user-attachments/assets/59e73c95-ebd8-4719-b2b7-2eaa5bf18b36" />
 
