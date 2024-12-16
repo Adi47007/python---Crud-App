@@ -1,10 +1,13 @@
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, ttk, filedialog
 import mysql.connector
 import os
+import csv
+
 
 def get_password():
     return ''.join([chr(ord(char) - 2) for char in 'pgyrcuuyqtf'])
+
 # Function to connect to the database
 def db_connect():
     try:
@@ -126,6 +129,44 @@ def deleteData():
             finally:
                 myDB.close()
 
+#Function to Search entry by name or department
+def searchData():
+    searchTerm = searchEntry.get()
+    myDB = db_connect()
+    if myDB:
+        myCur = myDB.cursor()
+        try:
+            sql = "SELECT * FROM empDetails WHERE empName LIKE %s OR empDept LIKE %s"
+            val = (f"%{searchTerm}%", f"%{searchTerm}%")
+            myCur.execute(sql, val)
+            rows = myCur.fetchall()
+            showData.delete(0, END)
+            showData.insert(0, "ID | Name | Dept")
+            for row in rows:
+                showData.insert(END, f"{row[0]:<10} {row[1]:<20} {row[2]}")
+        except mysql.connector.Error as err:
+            messagebox.showerror("Search Error", f"Error: {err}")
+        finally:
+            myDB.close()
+
+#Function for exporting data in a csv file 
+def exportData():
+    myDB = db_connect()
+    if myDB:
+        myCur = myDB.cursor()
+        try:
+            myCur.execute("SELECT * FROM empDetails")
+            rows = myCur.fetchall()
+            with open('employee_data.csv', 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(["ID", "Name", "Department"])
+                writer.writerows(rows)
+            messagebox.showinfo("Export Status", "Data exported successfully to 'employee_data.csv'")
+        except mysql.connector.Error as err:
+            messagebox.showerror("Export Error", f"Error: {err}")
+        finally:
+            myDB.close()
+            
 # Function to display data in the listbox
 def show():
     myDB = db_connect()
@@ -135,7 +176,7 @@ def show():
             myCur.execute("SELECT * FROM empDetails")
             rows = myCur.fetchall()
             showData.delete(0, END)
-            showData.insert(0, "ID | Name | Dept")
+            showData.insert(0, "ID         | Name                 | Dept    ")
             for row in rows:
                 addData = f"{row[0]:<10} {row[1]:<20} {row[2]}"
                 showData.insert(END, addData)
@@ -155,6 +196,9 @@ window = Tk()
 window.geometry("700x350")
 window.title("Employee CRUD App")
 
+style = ttk.Style(window)
+style.theme_use("clam")
+
 empId = Label(window, text="Employee ID", font=('Serif', 12))
 empId.place(x=20, y=30)
 enterId = Entry(window)
@@ -170,22 +214,34 @@ empDept.place(x=20, y=130)
 enterDept = Entry(window)
 enterDept.place(x=150, y=130)
 
-insertBtn = Button(window, text="Insert", font=('Serif', 12), bg="white", command=insertData)
+searchLabel = Label(window, text="Search:", font=('Serif', 12))
+searchLabel.place(x=20, y=250)
+searchEntry = Entry(window)
+searchEntry.place(x=100, y=250)
+searchBtn = Button(window, text="Search", font=('Serif', 12), bg="lightblue", command=searchData)
+searchBtn.place(x=280, y=245)
+
+insertBtn = Button(window, text="Insert", font=('Serif', 12), bg="lightblue", command=insertData)
 insertBtn.place(x=20, y=200)
-updateBtn = Button(window, text="Update", font=('Serif', 12), bg="white", command=updateData)
+updateBtn = Button(window, text="Update", font=('Serif', 12), bg="lightblue", command=updateData)
 updateBtn.place(x=100, y=200)
-getBtn = Button(window, text="Fetch", font=('Serif', 12), bg="white", command=getData)
+getBtn = Button(window, text="Fetch", font=('Serif', 12), bg="lightblue", command=getData)
 getBtn.place(x=180, y=200)
-deleteBtn = Button(window, text="Delete", font=('Serif', 12), bg="white", command=deleteData)
+deleteBtn = Button(window, text="Delete", font=('Serif', 12), bg="lightblue", command=deleteData)
 deleteBtn.place(x=260, y=200)
-resetBtn = Button(window, text="Reset", font=('Serif', 12), bg="white", command=resetFields)
+resetBtn = Button(window, text="Reset", font=('Serif', 12), bg="lightblue", command=resetFields)
 resetBtn.place(x=340, y=200)
 
+exportBtn = Button(window, text="Export", font=('Serif', 12), bg="lightblue", command=exportData)
+exportBtn.place(x=20, y=280)
+
 showData = Listbox(window, width=70)
-showData.place(x=400, y=30, height=250)
+showData.place(x=400, y=30, height=280)
+
+scrollbar = Scrollbar(window, orient=VERTICAL, command=showData.yview)
+scrollbar.place(x=680, y=30, height=280)  
+showData.configure(yscrollcommand=scrollbar.set)
 
 show()
-
-window.mainloop()
 
 
