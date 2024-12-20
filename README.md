@@ -1,100 +1,58 @@
 # python---Crud-App
 Employee CRUD Application
-Overview
-The Employee CRUD Application is a Python-based tool designed to manage employee information efficiently. It provides functionality for creating, reading, updating, and deleting employee records through a user-friendly interface and backend database integration.
+This Python Project is a Graphical User Interface (GUI) Employee Management System built using tkinter and mysql.connector. It allows CRUD (Create, Read, Update, Delete) operations on employee data stored in a MySQL database. Below is a breakdown of its key features and functions:
 
 Features
+Database Connection:
+
+Connects to a MySQL database using credentials retrieved from an obfuscated password function get_password.
+Data Operations:
+
+Insert: Add new employee records to the database.
+Update: Modify existing employee details.
+Fetch (Get): Retrieve details of a specific employee by their ID.
+Delete: Remove an employee record from the database.
+Search: Search for employees by name or department using a case-insensitive query.
+Export: Save all employee data into a CSV file for offline use.
+Distribution Chart: Plot a bar chart to visualize employee distribution by department using matplotlib.
+GUI Elements:
+
+Designed using tkinter widgets such as Label, Entry, Button, and Treeview.
+Includes search fields, a listbox, and a treeview to display records.
+Data Display:
+
+Shows employee records dynamically in a Treeview widget and a search listbox for better visualization.
+Functions Description
+get_password: Retrieves the database password securely by decoding an obfuscated string.
+
+db_connect: Establishes a connection to the MySQL database.
+
 CRUD Operations:
 
-Create: Add new employee records with details such as name, role, and department.
-Read: View all existing employee data in a structured format.
-Update: Modify employee details as needed.
-Delete: Remove employee records that are no longer required.
-Database Integration:
+insertData: Adds a new employee to the database.
+updateData: Updates an employee's details.
+getData: Fetches details of a specific employee by ID and displays them in input fields.
+deleteData: Deletes an employee from the database by ID.
+Search and Export:
 
-Uses SQL for efficient data management and storage.
-Ensures data persistence for long-term accessibility.
-User-Friendly Interface:
+searchData: Performs a search query on the database using the provided term.
+exportData: Exports all employee records into a CSV file.
+Visualization:
 
-Command-line based input for ease of interaction.
-Provides clear prompts for each operation.
-Data Validation:
+show_distribution_by_department: Generates a bar chart to analyze employee distribution across departments.
+Utility Functions:
 
-Ensures no duplicate employee IDs.
-Validates input data to prevent errors and ensure consistency.
-Tools and Technologies
-Python: For core application logic and user interface.
-SQL (SQLite/MySQL/PostgreSQL): For database storage and CRUD operations.
-Modules Used: sqlite3, pandas, and other relevant Python libraries for database connectivity and data handling.
-How It Works
-Start the Application:
-Run the Python script to launch the application.
+resetFields: Clears input fields.
+show: Fetches and displays all employee records in the GUI.
+GUI Layout:
 
-Main Menu:
-Access options for creating, reading, updating, and deleting employee records.
+Widgets for inputs (ID, name, department), buttons for operations, and a Treeview with a scrollbar for displaying database records.
+Responsive to user actions like clicks, with visual feedback through messages.
+Tools Used
+Tkinter: For creating the GUI.
+MySQL Connector: To interact with the database.
+Matplotlib: For plotting bar charts.
+CSV Module: To export data to CSV files.
+This script provides a comprehensive way to manage and visualize employee data with a user-friendly interface.
 
-Perform Operations:
-Follow the on-screen prompts to execute CRUD actions. All data changes are saved automatically to the database.
-
-Installation and Setup
-Clone the Repository:
-
-bash
-Copy code
-git clone https://github.com/adi47007/employee-crud-application.git  
-Install Dependencies:
-Ensure Python and required libraries are installed. Use:
-
-bash
-Copy code
-pip install -r requirements.txt  
-Setup Database:
-Run the SQL script (if included) to initialize the database schema:
-
-bash
-Copy code
-python setup_database.py  
-Run the Application:
-
-bash
-Copy code
-python app.py  
-Sample Commands
-Add Employee: Enter employee details like ID, name, role, and department to add a record.
-View Employees: Displays a table of all employees with their details.
-Update Employee: Modify the role, department, or any other details.
-Delete Employee: Enter the employee ID to delete a record.
-Example
-plaintext
-Copy code
-Welcome to the Employee Management System!  
-1. Add Employee  
-2. View Employees  
-3. Update Employee  
-4. Delete Employee  
-5. Exit  
-
-Enter your choice: 1  
-
-Enter Employee ID: 101  
-Enter Employee Name: John Doe  
-Enter Employee Role: Software Engineer  
-Enter Employee Department: IT  
-
-Employee record added successfully!  
-Why This Project?
-This project demonstrates essential skills in:
-
-Python application development.
-Database management using SQL.
-Implementing robust and scalable CRUD functionalities.
-Future Enhancements
-Web-Based Interface: Convert the application into a web app for enhanced accessibility.
-Search Functionality: Add a search option to filter employee records by various parameters.
-Authentication: Implement role-based access controls for security.
-
-you can also import data from sql to csv file by clicking on export button
-
-
-<img width="529" alt="image" src="https://github.com/user-attachments/assets/59e73c95-ebd8-4719-b2b7-2eaa5bf18b36" />
-
+<img width="678" alt="Result" src="https://github.com/user-attachments/assets/50ace4a4-d19b-46d5-a4de-881b5a3319d7" />
