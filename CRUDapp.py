@@ -3,6 +3,7 @@ from tkinter import messagebox, ttk, filedialog
 import mysql.connector
 import os
 import csv
+import matplotlib.pyplot as plt
 
 
 def get_password():
@@ -166,7 +167,29 @@ def exportData():
             messagebox.showerror("Export Error", f"Error: {err}")
         finally:
             myDB.close()
-            
+
+#Function for plotting the graph for distribution of employees by department
+def show_distribution_by_department():
+    myDB = db_connect()
+    if myDB:
+        myCur = myDB.cursor()
+        try:
+            sql = "SELECT empDept, COUNT(*) FROM empDetails GROUP BY empDept"
+            myCur.execute(sql)
+            rows = myCur.fetchall()
+            departments = [row[0] for row in rows]
+            counts = [row[1] for row in rows]
+
+            plt.figure(figsize=(8, 5))
+            plt.bar(departments, counts, color='skyblue')
+            plt.title('Employee Distribution by Department')
+            plt.xlabel('Department')
+            plt.ylabel('Number of Employees')
+            plt.show()
+        except mysql.connector.Error as err:
+            messagebox.showerror("Chart Error", f"Error: {err}")
+        finally:
+            myDB.close()            
 # Function to display data in the listbox
 def show():
     myDB = db_connect()
@@ -175,11 +198,15 @@ def show():
         try:
             myCur.execute("SELECT * FROM empDetails")
             rows = myCur.fetchall()
-            showData.delete(0, END)
-            showData.insert(0, "ID         | Name                 | Dept    ")
+
+            # Clear Treeview
+            for item in empTable.get_children():
+                empTable.delete(item)
+
+            # Insert new rows into Treeview
             for row in rows:
-                addData = f"{row[0]:<10} {row[1]:<20} {row[2]}"
-                showData.insert(END, addData)
+                empTable.insert("", "end", values=row)
+
         except mysql.connector.Error as err:
             messagebox.showerror("Display Error", f"Error: {err}")
         finally:
@@ -193,7 +220,7 @@ def resetFields():
 
 # GUI Setup
 window = Tk()
-window.geometry("700x350")
+window.geometry("900x400")
 window.title("Employee CRUD App")
 
 style = ttk.Style(window)
@@ -219,7 +246,7 @@ searchLabel.place(x=20, y=250)
 searchEntry = Entry(window)
 searchEntry.place(x=100, y=250)
 searchBtn = Button(window, text="Search", font=('Serif', 12), bg="lightblue", command=searchData)
-searchBtn.place(x=280, y=245)
+searchBtn.place(x=260, y=240)
 
 insertBtn = Button(window, text="Insert", font=('Serif', 12), bg="lightblue", command=insertData)
 insertBtn.place(x=20, y=200)
@@ -230,18 +257,31 @@ getBtn.place(x=180, y=200)
 deleteBtn = Button(window, text="Delete", font=('Serif', 12), bg="lightblue", command=deleteData)
 deleteBtn.place(x=260, y=200)
 resetBtn = Button(window, text="Reset", font=('Serif', 12), bg="lightblue", command=resetFields)
-resetBtn.place(x=340, y=200)
+resetBtn.place(x=280, y=350)
 
 exportBtn = Button(window, text="Export", font=('Serif', 12), bg="lightblue", command=exportData)
 exportBtn.place(x=20, y=280)
 
+deptChartBtn = Button(window, text="Dept Distribution", font=('Serif', 12), bg="lightgreen", command=show_distribution_by_department)
+deptChartBtn.place(x=20, y=320)
+
 showData = Listbox(window, width=70)
 showData.place(x=400, y=30, height=280)
 
-scrollbar = Scrollbar(window, orient=VERTICAL, command=showData.yview)
-scrollbar.place(x=680, y=30, height=280)  
-showData.configure(yscrollcommand=scrollbar.set)
+columns = ("ID", "Name", "Department")
+empTable = ttk.Treeview(window, columns=columns, show="headings", height=10)
+empTable.heading("ID", text="ID")
+empTable.heading("Name", text="Name")
+empTable.heading("Department", text="Department")
+empTable.column("ID", width=100, anchor="center")
+empTable.column("Name", width=200, anchor="center")
+empTable.column("Department", width=150, anchor="center")
+empTable.place(x=350, y=30, width=500, height=350)
+
+scrollbar = ttk.Scrollbar(window, orient="vertical", command=empTable.yview)
+empTable.configure(yscroll=scrollbar.set)
+scrollbar.place(x=850, y=30, height=350)
 
 show()
 
-
+window.mainloop()
